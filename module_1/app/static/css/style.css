@@ -1,15 +1,17 @@
+/* This file was mainly provided by ChatGPT to make the website style, coloring, font, margins, etc. */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
+  background-color: #f5f7fa;  /* light gray page background */
 }
 
 .navbar {
   display: flex;
-  justify-content: flex-end; /* top right */
+  justify-content: flex-end;   /* top right */
   padding: 14px 18px;
-  border-bottom: 1px solid #ddd;
+  background-color: #1f2937;   /* dark/navy color */
+  border-bottom: 1px solid #111;
 }
-
 .nav-right {
   display: flex;
   gap: 12px;
@@ -19,14 +21,14 @@ body {
   text-decoration: none;
   padding: 8px 12px;
   border-radius: 8px;
-  color: #222;
+  color: #e5e7eb;  /* light text */
+  font-weight: 500;
 }
 
 .nav-link.active {
-  background: #2d6cdf; /* highlighted + colorized */
+  background-color: #3b82f6; /* bright blue */
   color: white;
 }
-
 .container {
   padding: 24px;
 }

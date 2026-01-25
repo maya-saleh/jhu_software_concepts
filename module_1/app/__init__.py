@@ -1,3 +1,4 @@
+#registers the blueprints for Flask so it can easily follow routes
 from flask import Flask
 
 def create_app():
@@ -7,3 +8,5 @@ def create_app():
     app.register_blueprint(pages_bp)
 
     return app
+
+#this helps as the project grows and the app setup is in one place

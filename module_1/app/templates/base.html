@@ -1,10 +1,11 @@
+<!-- this base.html is used as a standard layout for all the following pages -->
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ title if title else "Module 1 Site" }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> <!--links to the css file for consistent styling -->
   </head>
   <body>
     <nav class="navbar">
@@ -20,3 +21,5 @@
     </main>
   </body>
 </html>
+
+<!-- this base makes sure that the nav bar and styling is consistent across the website -->
