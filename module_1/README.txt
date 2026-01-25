@@ -1,6 +1,6 @@
 Module 1 Assignment - Personal Website
 
-This project uses Flask, HTML templates, and CSS styles.
+This project uses Flask, (Jinja) HTML templates, and CSS styles.
 It includes multiple pages containing information about me, and links to my work that will continue to grow.
 
 To run:
