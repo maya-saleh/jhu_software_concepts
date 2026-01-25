@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Maya Saleh (she/her)</h1>
+<h2>Graduate Student</h2>
+
+<div class="two-col">
+  <div class="left">
+    <p>
+      Hi! I’m Maya and I am currently just a Data Science Masters student at Johns Hopkins. I just finished my B.S. in Neuroscience at UT Austin with a minor in Data Science. I currently live in Texas and spend my time playing soccer, reading, and studying. I created this website to document my projects throughout this course.
+    </p>
+
+  
+  </div>
+
+  <div class="right">
+    <img
+      class="profile-img"
+      src="{{ url_for('static', filename='img/DSC04125.JPG') }}"
+      alt="Profile photo"
+    />
+  </div>
+</div>
+{% endblock %}
