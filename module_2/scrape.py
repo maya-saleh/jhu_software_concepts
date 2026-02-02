@@ -1,13 +1,13 @@
 import urllib.request
 import urllib.parse
-import urllib.robotparser
 from bs4 import BeautifulSoup
 import re
 import time
 import os
 import json
 from datetime import datetime
-TEST_URL = "https://www.thegradcafe.com/survey/index.php"  # any single /result/ page is fine
+
+TEST_URL = "https://www.thegradcafe.com/survey/index.php"  
 
 def build_survey_url(page_num: int) -> str:
     return f"https://www.thegradcafe.com/survey/index.php?page={page_num}"
@@ -235,47 +235,10 @@ def save_entries(path: str, entries: list[dict]) -> None:
         json.dump(entries, f, ensure_ascii=False, indent=2)
 
 def main():
-    output_path = "module_2/applicant_data_full.json"
-    target_entries = 30000
-
-    entries = load_existing(output_path)
-
-    last_page = 0
-    if entries:
-        last_page = max(e.get("source_page", 0) for e in entries if isinstance(e, dict))
-    page = max(1, last_page + 1)
-
-    print(f"Starting scrape at page {page} (last_page={last_page}, already_saved={len(entries)})")
-    print(f"Target entries: {target_entries}")
-    print(f"Output: {output_path}")
-
-    checkpoint_every = 25
-    sleep_s = 0.75
-
-    while len(entries) < target_entries:
-        try:
-            html = scrape_one(build_survey_url(page))
-            records = parse_survey_page(html)
-
-            for rec in records:
-                entry = extract_fields(rec)  # <-- NEW
-                entry["source_page"] = page
-                entries.append(entry)
-
-            print(f"page {page}: +{len(records)} records (running_total {len(entries)})")
-
-        except Exception as e:
-            print(f"ERROR on page {page}: {e}  (skipping)")
-
-        if (page % checkpoint_every) == 0:
-            save_entries(output_path, entries)
-            print(f"Checkpoint saved at page {page} -> {output_path}")
-
-        time.sleep(sleep_s)
-        page += 1
-
-    save_entries(output_path, entries)
-    print(f"Target reached. Final save -> {output_path} (entries={len(entries)})")
+    html = scrape_one(build_survey_url(1))
+    records = parse_survey_page(html)
+    entry0 = extract_fields(records[0])
+    print(entry0)
 
 if __name__ == "__main__":
-    main()
+     main()

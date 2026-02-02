@@ -26,72 +26,42 @@ def infer_degree(raw: str) -> str | None:
 
 
 def split_university_program(raw: str) -> tuple[str | None, str | None]:
+    """
+    Improved heuristic split:
+    1) Remove degree token to get 'before_degree'
+    2) Handle common "University of X" (and similar) patterns first
+    3) Otherwise anchor on University/College/Institute/etc.
+    4) Fallback: first 3 words as university
+    """
     raw = (raw or "").strip()
     if not raw:
         return None, None
 
-    # Remove degree token from the region we split on
+    # Remove trailing degree token from the region we split on
     m_deg = re.search(r"\b(PhD|Masters|MS|MA|MEng|MSc)\b", raw, re.IGNORECASE)
     before_degree = raw[:m_deg.start()].strip() if m_deg else raw
-    tokens = before_degree.split()
 
-    # words that are very likely part of a PROGRAM, not part of the institution name
-    discipline_words = {
-        "Engineering", "Science", "Sciences", "Physics", "Chemistry", "Biology", "Biomedical",
-        "Computer", "Computing", "Mathematics", "Math", "Statistics", "Economics", "Business",
-        "Management", "Public", "Health", "Nursing", "Education", "Psychology", "Sociology",
-        "Political", "Policy", "Law", "Medicine", "Medical", "Geology", "Geophysics", "Astronomy",
-        "Civil", "Mechanical", "Electrical", "Industrial", "Aerospace", "Chemical", "Materials",
-        "Data", "Information", "Neuroscience"
-    }
+    # Special-case common "X of Y" institution names
+    # Examples:
+    # - University of Washington
+    # - University of Southern California
+    # - The University of Texas at Austin
+    # - Institute of Technology (less common but helps)
+    of_patterns = [
+        r"^(The\s+)?University\s+of\s+(?:[A-Z][A-Za-z&.\-]*)(?:\s+[A-Z][A-Za-z&.\-]*){0,4}",
+        r"^(The\s+)?College\s+of\s+(?:[A-Z][A-Za-z&.\-]*)(?:\s+[A-Z][A-Za-z&.\-]*){0,4}",
+        r"^(The\s+)?Institute\s+of\s+(?:[A-Z][A-Za-z&.\-]*)(?:\s+[A-Z][A-Za-z&.\-]*){0,4}",
+        r"^(The\s+)?School\s+of\s+(?:[A-Z][A-Za-z&.\-]*)(?:\s+[A-Z][A-Za-z&.\-]*){0,4}",
+    ]
 
-    def is_cap(tok: str) -> bool:
-        # allow A&M, UCLA, MIT, St., McGill, etc.
-        return bool(re.match(r"^[A-Z][A-Za-z&.\-]*$", tok)) or tok.isupper()
+    for pat in of_patterns:
+        m = re.search(pat, before_degree)
+        if m:
+            university = m.group(0).strip()
+            program = before_degree[len(university):].strip() or None
+            return university, program
 
-    # Special handling: (The) University/College/Institute/School of X [at Y]
-    starters = {"University", "College", "Institute", "School"}
-
-    i = 0
-    if len(tokens) >= 4 and tokens[0] == "The" and tokens[1] in starters and tokens[2] == "of":
-        i = 1  # skip "The"
-
-    if len(tokens) >= i + 3 and tokens[i] in starters and tokens[i + 1] == "of":
-        j = i + 2  # start after "of"
-
-        # build a candidate place-name with up to 3 capitalized tokens
-        cap_count = 0
-        while j < len(tokens) and cap_count < 3 and is_cap(tokens[j]):
-            j += 1
-            cap_count += 1
-
-        # optional: "at <Cap> <Cap>"
-        if j < len(tokens) and tokens[j] == "at":
-            j2 = j + 1
-            cap2 = 0
-            while j2 < len(tokens) and cap2 < 2 and is_cap(tokens[j2]):
-                j2 += 1
-                cap2 += 1
-            if cap2 > 0:
-                j = j2
-
-        # Now BACK OFF if we swallowed the program
-        # Case A: program would be empty
-        # Case B: university ends with a discipline word (likely program)
-        while j > i + 2:
-            university_candidate = " ".join(tokens[i:j]).strip()
-            program_candidate = " ".join(tokens[j:]).strip() or None
-
-            last_word = university_candidate.split()[-1] if university_candidate else ""
-            if program_candidate is None or last_word in discipline_words:
-                j -= 1
-                continue
-
-            return university_candidate, program_candidate
-
-        # If we backed off all the way, fall through
-
-    # Anchor split on institution words elsewhere (works for "Ohio State University ...")
+    # Anchor split on common institution words (works for "Ohio State University", "MIT", etc.)
     uni_anchor = re.search(
         r".*\b(University|College|Institute|School|Technolog(y|ies)|Polytechnic)\b",
         before_degree
@@ -102,10 +72,12 @@ def split_university_program(raw: str) -> tuple[str | None, str | None]:
         return university, program
 
     # Fallback: first 3 words as university
-    if len(tokens) <= 3:
+    parts = before_degree.split()
+    if len(parts) <= 3:
         return before_degree, None
-    university = " ".join(tokens[:3])
-    program = " ".join(tokens[3:]).strip() or None
+
+    university = " ".join(parts[:3])
+    program = " ".join(parts[3:]).strip() or None
     return university, program
 
 
@@ -141,8 +113,8 @@ def clean_data(rows: list[dict]) -> list[dict]:
             "program_university_raw": raw,
 
             # Not yet scraped from HTML rows in this version; placeholders for now
-            "comments": None,
-            "entry_url": None,
+            "comments": r.get("comments"),
+            "entry_url": r.get("entry_url"),
 
             # Existing / derived
             "date_added": date_added,
@@ -162,9 +134,9 @@ def clean_data(rows: list[dict]) -> list[dict]:
 
             # Metrics (some present now, GRE fields will be parsed later)
             "gpa": r.get("gpa"),
-            "gre_total": None,
-            "gre_v": None,
-            "gre_aw": None,
+            "gre_total": r.get("gre_total"),
+            "gre_v": r.get("gre_v"),
+            "gre_aw": r.get("gre_aw"),
 
             # Provenance
             "source_page": r.get("source_page"),
