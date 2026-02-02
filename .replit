@@ -1,5 +1,9 @@
 modules = ["nodejs-20", "postgresql-16", "python-3.11", "web"]
+<<<<<<< Updated upstream
 run = "cd module_1 && python run.py"
+=======
+run = "python module_2/scrape.py"
+>>>>>>> Stashed changes
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
