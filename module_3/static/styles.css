@@ -1,0 +1,97 @@
+
+/* I referenced ChatGPT for style.css help*/
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f6f7fb;
+  margin: 0;
+  color: #111;
+}
+
+.page {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.eyebrow {
+  font-size: 12px;
+  color: #666;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 34px;
+}
+
+.card {
+  background: white;
+  border: 1px solid #e6e7ee;
+  border-radius: 12px;
+  padding: 18px 18px;
+  margin: 14px 0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.card h3 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+}
+
+.muted {
+  color: #666;
+  font-size: 12px;
+}
+.toolbar {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin: 10px 0 8px 0;
+}
+
+.btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: #1f3cff;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background: #111;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.helper {
+  margin: 0 0 10px 0;
+  color: #444;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.warning {
+  color: #b42318;
+  font-weight: 600;
+}
+
+.status {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin: 10px 0 16px 0;
+  color: #7c2d12;
+}

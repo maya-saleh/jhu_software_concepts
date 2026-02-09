@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Grad School Cafe Data Analysis</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <div>
+        <div class="eyebrow">Grad School Cafe Data Analysis</div>
+        <h1>Analysis</h1>
+      </div>
+    </header>
+
+    <div class="toolbar">
+        <form method="POST" action="/pull-data">
+            <button class="btn" type="submit" {% if pull_data_running %}disabled{% endif %}>
+            Pull Data
+        </button>
+        </form>
+
+        <form method="POST" action="/update-analysis">
+            <button class="btn btn-secondary" type="submit" {% if pull_data_running %}disabled{% endif %}>
+                Update Analysis
+            </button>
+        </form>
+    </div>
+
+    <p class="helper">
+        <strong>Pull Data</strong> scrapes Grad Café for any new posts and adds them to the database.
+        <br/>
+        <strong>Update Analysis</strong> refreshes this page using the most up-to-date database contents.
+        {% if pull_data_running %}
+            <br/><span class="warning">A Pull Data request is currently running. Buttons are disabled until it finishes.</span>
+        {% endif %}
+    </p>
+
+    {% if pull_data_status_msg %}
+        <div class="status">{{ pull_data_status_msg }}</div>
+    {% endif %}
+
+
+    <section class="card">
+      <h3>How many entries do you have in your database who have applied for Fall 2026?</h3>
+      <p><strong>Answer:</strong> Applicant count: {{ results.q1 }}</p>
+    </section>
+
+    <section class="card">
+      <h3>What percentage of entries are from International students (not American or Other) (to two decimal places)?</h3>
+      <p><strong>Answer:</strong> Percent International: {{ results.q2 }}%</p>
+    </section>
+
+    <section class="card">
+      <h3>What is the average GPA, GRE, GRE V, GRE AW of applicants who provided these metrics?</h3>
+      <p><strong>Answer:</strong>
+        Average GPA: {{ results.q3_avgs.gpa }},
+        Average GRE: {{ results.q3_avgs.gre }},
+        Average GRE V: {{ results.q3_avgs.gre_v }},
+        Average GRE AW: {{ results.q3_avgs.gre_aw }}
+      </p>
+      <p class="muted">
+        Non-null counts (why some may be None):
+        GPA={{ results.q3_counts.gpa }},
+        GRE={{ results.q3_counts.gre }},
+        GRE_V={{ results.q3_counts.gre_v }},
+        GRE_AW={{ results.q3_counts.gre_aw }}
+      </p>
+    </section>
+
+    <section class="card">
+      <h3>What is the average GPA of American students in Fall 2026?</h3>
+      <p><strong>Answer:</strong> Average GPA American: {{ results.q4 }}</p>
+    </section>
+
+    <section class="card">
+      <h3>What percent of entries for Fall 2026 are Acceptances (to two decimal places)?</h3>
+      <p><strong>Answer:</strong> Acceptance percent: {{ results.q5 }}%</p>
+    </section>
+
+    <section class="card">
+      <h3>What is the average GPA of applicants who applied for Fall 2026 who are Acceptances?</h3>
+      <p><strong>Answer:</strong> Average GPA Acceptance: {{ results.q6 }}</p>
+    </section>
+
+    <section class="card">
+      <h3>How many entries are from applicants who applied to JHU for a masters degree in Computer Science?</h3>
+      <p><strong>Answer:</strong> Count: {{ results.q7 }}</p>
+    </section>
+
+    <section class="card">
+      <h3>How many entries from 2026 are acceptances for PhD CS at Georgetown, MIT, Stanford, or CMU (original fields)?</h3>
+      <p><strong>Answer:</strong> Count: {{ results.q8 }}</p>
+    </section>
+
+    <section class="card">
+      <h3>Do the numbers change if you use LLM Generated Fields?</h3>
+      <p><strong>Answer:</strong> Count using LLM fields: {{ results.q9 }}</p>
+    </section>
+
+    <section class="card">
+      <h3>Additional Question 1: Acceptance rate by citizenship (Fall 2026)</h3>
+      <ul>
+        {% for label, rate in results.q10a %}
+          <li><strong>{{ label }}:</strong> {{ rate }}%</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="card">
+      <h3>Additional Question 2: Avg GPA by decision group (Fall 2026)</h3>
+      <ul>
+        {% for label, avg in results.q10b %}
+          <li><strong>{{ label }}:</strong> {{ avg }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+  </div>
+</body>
+</html>
