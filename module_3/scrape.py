@@ -5,10 +5,6 @@ import re
 
 BASE_URL = "https://www.thegradcafe.com/survey/index.php"
 
-
-# -----------------------------
-# URL + download helpers
-# -----------------------------
 def build_survey_url(page_num: int) -> str:
     """Build the GradCafe survey URL for a specific page number."""
     return f"{BASE_URL}?page={page_num}"
@@ -24,9 +20,6 @@ def scrape_one(url: str) -> str:
         return resp.read().decode("utf-8", errors="ignore")
 
 
-# -----------------------------
-# Page parsing
-# -----------------------------
 def parse_survey_page(html: str) -> list[dict]:
     """
     Parse a survey page HTML into a list of "record chunks".
@@ -37,7 +30,7 @@ def parse_survey_page(html: str) -> list[dict]:
     soup = BeautifulSoup(html, "html.parser")
     rows = soup.find_all("tr")
 
-    # GradCafe results are grouped; a reliable marker is the row containing "Total comments"
+    #GradCafe results are grouped
     starts = []
     for idx, row in enumerate(rows):
         t = row.get_text(" ", strip=True).lower()
@@ -58,10 +51,6 @@ def parse_survey_page(html: str) -> list[dict]:
 
     return records
 
-
-# -----------------------------
-# Field extraction per record
-# -----------------------------
 def extract_fields(record: dict) -> dict:
     """
     Convert one parsed record into a normalized dict your Flask app can insert into Postgres.
@@ -73,7 +62,7 @@ def extract_fields(record: dict) -> dict:
     main = raw_lines[0] if len(raw_lines) > 0 else ""
     details = raw_lines[1] if len(raw_lines) > 1 else ""
 
-    # ---- entry_url: find a /result/<id> link in the first row ----
+    #entry_url
     entry_url = None
     if html_rows:
         a_tags = html_rows[0].find_all("a", href=True)
@@ -83,7 +72,7 @@ def extract_fields(record: dict) -> dict:
                 entry_url = href if href.startswith("http") else ("https://www.thegradcafe.com" + href)
                 break
 
-    # ---- comments: join leftover lines (if present) ----
+    #comments
     comments = None
     if len(raw_lines) >= 3:
         leftover = " ".join(raw_lines[2:]).strip()
@@ -96,15 +85,14 @@ def extract_fields(record: dict) -> dict:
             ).strip()
             comments = leftover or None
 
-    # ---- Date added: "Month DD, YYYY" ----
+    #Date added
     m_date = re.search(
         r"(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}",
         main
     )
     date_added = m_date.group(0) if m_date else None
 
-    # ---- Status + decision date fragment ----
-    # e.g. "Accepted on 14 Feb" (this part is optional and not always present)
+    #Status & decision date    
     m_status = re.search(
         r"\b(Accepted|Rejected|Wait listed|Waitlisted|Interview)\b",
         main,
@@ -112,18 +100,18 @@ def extract_fields(record: dict) -> dict:
     )
     status = m_status.group(1).replace("Wait listed", "Waitlisted").title() if m_status else None
 
-    # ---- Term: "Fall 2026" etc. (usually appears in details line) ----
+    #Term
     m_term = re.search(r"\b(Fall|Spring|Summer|Winter)\s+\d{4}\b", details)
     start_term = m_term.group(0) if m_term else None
 
-    # ---- Citizenship: look for keywords in details line ----
+    #Citizenship
     citizenship = None
     if re.search(r"\bInternational\b", details, re.IGNORECASE):
         citizenship = "International"
     elif re.search(r"\bAmerican\b", details, re.IGNORECASE):
         citizenship = "American"
 
-    # ---- GPA: "GPA 3.85" etc. ----
+    #GPA
     gpa = None
     m_gpa = re.search(r"\bGPA\s*([0-4]\.\d{1,2})\b", details)
     if m_gpa:
@@ -132,7 +120,7 @@ def extract_fields(record: dict) -> dict:
         except ValueError:
             gpa = None
 
-    # ---- GRE fields (your app.py expects these names) ----
+    #GRE fields
     gre_total = None
     gre_v = None
     gre_aw = None
@@ -158,7 +146,7 @@ def extract_fields(record: dict) -> dict:
         except ValueError:
             gre_aw = None
 
-    # ---- Program/university raw text: take main line up to date_added ----
+    #Program/university
     program_university_raw = main
     if date_added and date_added in main:
         program_university_raw = main.split(date_added)[0].strip()
@@ -177,10 +165,6 @@ def extract_fields(record: dict) -> dict:
         "entry_url": entry_url,
     }
 
-
-# -----------------------------
-# What Flask calls
-# -----------------------------
 def scrape_recent_pages(pages: int = 5, sleep_s: float = 0.75) -> list[dict]:
     """
     Scrape the first N pages (most recent results) and return extracted entries.

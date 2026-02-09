@@ -1,109 +1,59 @@
-# -----------------------------
-# Imports
-# -----------------------------
-# json: used to read the input JSON lines file (NDJSON format)
 import json
-
-# datetime: used to convert date strings into PostgreSQL DATE objects
 from datetime import datetime
-
-# psycopg: PostgreSQL database driver
 import psycopg
 
-
-# -----------------------------
-# Database configuration
-# -----------------------------
-# These values define how the script connects to the PostgreSQL database.
 DB_NAME = "postgres"
 DB_USER = "postgres"
 DB_PASSWORD = "methJHU2026"
 DB_HOST = "localhost"
 DB_PORT = 5432
-
-
-# -----------------------------
-# Input data location
-# -----------------------------
-# Path to the cleaned + LLM-extended Grad Café JSON file from Module 2
 JSON_PATH = r"llm_extend_applicant_data (1).json"
 
-
-# -----------------------------
-# Helper: parse_date
-# -----------------------------
-# Converts various date string formats into a Python date object.
-# Returns None if the date cannot be parsed, allowing PostgreSQL to store NULL.
+#converts date string formats into a date object
 def parse_date(value):
     if value is None:
         return None
-
     s = str(value).strip()
     if not s:
         return None
-
-    # Try several common date formats seen in the data
     for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%Y/%m/%d", "%b %d, %Y", "%B %d, %Y"):
         try:
             return datetime.strptime(s, fmt).date()
         except ValueError:
             pass
-
     return None
 
 
-# -----------------------------
-# Helper: to_float
-# -----------------------------
-# Converts GPA/GRE strings into floats.
-# Handles formats like:
-#   "GPA 3.8", "3.8/4.0", "3.8"
-# Returns None if conversion fails.
+#converts GPA/GRE strings into floats
 def to_float(value):
     if value is None:
         return None
-
     s = str(value).strip()
     if not s:
         return None
-
-    # Remove common prefixes and formatting noise
     s = s.replace("GPA", "").replace(":", "").strip()
-
-    # Handle fractions like "3.8/4.0"
     if "/" in s:
         s = s.split("/")[0].strip()
-
     try:
         return float(s)
     except ValueError:
         return None
 
-
-
 def clean_text(value):
     if value is None:
         return None
-
     s = str(value)
     s = s.replace("\x00", "")
     s = s.strip()
-
     return s if s != "" else None
 
-
-
-def main():
-
-    
+def main():    
     data = []
     with open(JSON_PATH, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if line:
-                data.append(json.loads(line))
-
-    
+                data.append(json.loads(line))    
     conn = psycopg.connect(
         dbname=DB_NAME,
         user=DB_USER,
@@ -111,9 +61,7 @@ def main():
         host=DB_HOST,
         port=DB_PORT,
     )
-    conn.autocommit = True
-
-   
+    conn.autocommit = True   
     insert_sql = """
     INSERT INTO applicants (
         p_id, program, comments, date_added, url, status, term,
@@ -146,12 +94,9 @@ def main():
 
    
     with conn.cursor() as cur:
-        for rec in data:
-            
+        for rec in data:            
             if not isinstance(rec, dict):
-                continue
-
-            
+                continue            
             row = {
                 "p_id": None,
                 "program": clean_text(rec.get("program")),
@@ -169,7 +114,6 @@ def main():
                 "llm_generated_program": clean_text(rec.get("llm-generated-program")),
                 "llm_generated_university": clean_text(rec.get("llm-generated-university")),
             }
-
            
             url = row["url"] or ""
             try:
@@ -182,7 +126,7 @@ def main():
             inserted += 1
 
     conn.close()
-    print(f"✅ Upserted {inserted} rows into applicants.")
+    print(f"Upserted {inserted} rows into applicants.")
 
 
 if __name__ == "__main__":
