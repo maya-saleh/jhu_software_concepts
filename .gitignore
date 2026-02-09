@@ -9,3 +9,8 @@ _MACOSX/
 __pycache__/
 *.pyc
 *.gguf
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
