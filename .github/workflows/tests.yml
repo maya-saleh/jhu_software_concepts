@@ -48,6 +48,14 @@ jobs:
           cd module_4
           python -m src.create_table
 
+      - name: Create DB table
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: |
+          cd module_4
+          python -m src.create_table
+
+
       - name: Run tests
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
