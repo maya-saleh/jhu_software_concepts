@@ -18,3 +18,19 @@ venv/
 __pycache__/
 *.pyc
 .env
+# Python / pytest
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Sphinx build artifacts
+module_4/build/
+module_4/_build/
+module_4/Makefile
+module_4/make.bat
+
+# OS junk
+.DS_Store
+Thumbs.db
