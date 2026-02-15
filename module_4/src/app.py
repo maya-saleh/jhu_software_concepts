@@ -204,7 +204,7 @@ def get_analysis_results():
         cur.execute("SELECT COUNT(*) FROM applicants WHERE term = 'Fall 2026';")
         results["q1"] = cur.fetchone()[0]
 
-        #Q2: Percent international
+        
         # Q2: Percent international (safe when table is empty)
         cur.execute("""
             SELECT COALESCE(
@@ -250,14 +250,22 @@ def get_analysis_results():
         results["q4"] = float(q4) if q4 is not None else None
 
         #Q5
+        # Q5: acceptance rate for Fall 2026 (safe when 0 rows)
         cur.execute("""
-            SELECT ROUND(
-                100.0 * SUM(CASE WHEN status ILIKE 'accept%' THEN 1 ELSE 0 END)
-                / COUNT(*), 2)
+            SELECT COALESCE(
+                ROUND(
+                    100.0 * COALESCE(SUM(CASE WHEN status ILIKE 'accept%' THEN 1 ELSE 0 END), 0)
+                    / NULLIF(COUNT(*), 0),
+                    2
+                ),
+                0
+            )
             FROM applicants
             WHERE term='Fall 2026';
         """)
         results["q5"] = float(cur.fetchone()[0])
+
+        
 
         #Q6
         cur.execute("""

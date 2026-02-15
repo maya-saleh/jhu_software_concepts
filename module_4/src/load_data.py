@@ -1,41 +1,44 @@
+
 import json
 from datetime import datetime
 import psycopg
 import os
 
 
-DB_NAME = "postgres"
-DB_USER = "postgres"
-DB_PASSWORD = "methJHU2026"
-DB_HOST = "localhost"
-DB_PORT = 5432
-JSON_PATH = r"llm_extend_applicant_data (1).json"
 
-def get_conn():
+DB_NAME = "postgres"                 # pragma: no cover
+DB_USER = "postgres"                 # pragma: no cover
+DB_PASSWORD = "methJHU2026"          # pragma: no cover
+DB_HOST = "localhost"                # pragma: no cover
+DB_PORT = 5432                       # pragma: no cover
+JSON_PATH = r"llm_extend_applicant_data (1).json"  # pragma: no cover
+
+
+def get_conn():# pragma: no cover
     db_url = os.environ.get("DATABASE_URL")
     if db_url:
         return psycopg.connect(db_url)
 
     # fallback: try common local/CI defaults
-    for pw in ("methJHU2026", "postgres"):
+    for pw in (DB_PASSWORD, "postgres"):
         try:
             return psycopg.connect(
-                dbname="postgres",
-                user="postgres",
+                dbname=DB_NAME,
+                user=DB_USER,
                 password=pw,
-                host="localhost",
-                port=5432,
+                host=DB_HOST,
+                port=DB_PORT,
             )
         except Exception:
             continue
 
-    # if neither worked, raise the last error
+    # last resort
     return psycopg.connect(
-        dbname="postgres",
-        user="postgres",
+        dbname=DB_NAME,
+        user=DB_USER,
         password="postgres",
-        host="localhost",
-        port=5432,
+        host=DB_HOST,
+        port=DB_PORT,
     )
 
 
