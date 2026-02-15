@@ -1,0 +1,16 @@
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html      
+============================== tests coverage ============================== 
+_____________ coverage: platform win32, python 3.11.1-final-0 ______________ 
+
+Name                  Stmts   Miss  Cover   Missing
+---------------------------------------------------
+src\__init__.py           0      0   100%
+src\app.py              118      0   100%
+src\create_table.py       7      0   100%
+src\load_data.py         72      0   100%
+src\query_data.py        55      0   100%
+src\scrape.py           101      0   100%
+---------------------------------------------------
+TOTAL                   353      0   100%
+Required test coverage of 100% reached. Total coverage: 100.00%
+35 passed
