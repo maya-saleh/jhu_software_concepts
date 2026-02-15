@@ -206,12 +206,16 @@ def get_analysis_results():
 
         #Q2: Percent international
         cur.execute("""
-            SELECT ROUND(
+        SELECT COALESCE(
+            ROUND(
                 100.0 * SUM(CASE WHEN us_or_international = 'International' THEN 1 ELSE 0 END)
-                / COUNT(*), 2)
-            FROM applicants;
-        """)
+                / NULLIF(COUNT(*), 0), 2
+            ),
+            0
+        )
+        FROM applicants;""")
         results["q2"] = float(cur.fetchone()[0])
+
 
         #Q3
         cur.execute("""
