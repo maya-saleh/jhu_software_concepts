@@ -17,10 +17,13 @@ def create_app(test_config=None):
     template_folder=os.path.join(os.path.dirname(__file__), "templates"),
 )
 
-
     if test_config:
         app.config.update(test_config)
+
     global pull_data_running, pull_data_status_msg
+    pull_data_running = False
+    pull_data_status_msg = ""
+
     if app.config.get("TESTING"):
         pull_data_running = False
         pull_data_status_msg = ""
