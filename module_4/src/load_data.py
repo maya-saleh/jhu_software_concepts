@@ -11,6 +11,34 @@ DB_HOST = "localhost"
 DB_PORT = 5432
 JSON_PATH = r"llm_extend_applicant_data (1).json"
 
+def get_conn():
+    db_url = os.environ.get("DATABASE_URL")
+    if db_url:
+        return psycopg.connect(db_url)
+
+    # fallback: try common local/CI defaults
+    for pw in ("methJHU2026", "postgres"):
+        try:
+            return psycopg.connect(
+                dbname="postgres",
+                user="postgres",
+                password=pw,
+                host="localhost",
+                port=5432,
+            )
+        except Exception:
+            continue
+
+    # if neither worked, raise the last error
+    return psycopg.connect(
+        dbname="postgres",
+        user="postgres",
+        password="postgres",
+        host="localhost",
+        port=5432,
+    )
+
+
 #converts date string formats into a date object
 def parse_date(value):
     if value is None:
@@ -56,18 +84,9 @@ def main():
             line = line.strip()
             if line:
                 data.append(json.loads(line))
-                
-    db_url = os.environ.get("DATABASE_URL")
-    if db_url:
-        conn = psycopg.connect(db_url)
-    else:
-        conn = psycopg.connect(
-            dbname=DB_NAME,
-            user=DB_USER,
-            password=DB_PASSWORD,
-            host=DB_HOST,
-            port=DB_PORT,
-        )
+    conn = get_conn()
+
+
     
     
     conn.autocommit = True   
