@@ -1,22 +1,34 @@
 API Reference
 =============
 
-.. automodule:: scrape
+scrape.py
+---------
+
+.. automodule:: src.scrape
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: load_data
+load_data.py
+------------
+
+.. automodule:: src.load_data
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: query_data
+query_data.py
+-------------
+
+.. automodule:: src.query_data
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: app
+app.py (Flask Routes)
+--------------------
+
+.. automodule:: src.app
    :members:
    :undoc-members:
    :show-inheritance:
